@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Viewer</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #eee;
+            color: #333;
+            --color: #3f89bb;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            gap: 1rem;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        #pdf-container {
+            width: 100%;
+            height: 90vh;
+            max-width: 80%;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        embed {
+            display: block;
+            width: 100%;
+            height: 90vh;
+        }
+
+        aside.controls {
+            width: 100%;
+            max-width: 35%;
+            padding: 1rem;
+        }
+
+        aside.controls form {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            /* gap: 1.5rem; */
+        }
+
+
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .control-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .control-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-item label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 0.2rem;
+        }
+
+        #barcode {
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        #barcode:focus {
+            border-color: var(--color);
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+        }
+
+        .control-item input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.9;
+            transition: background 0.3s;
+        }
+
+        .control-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .control-item input[type="range"]:hover::-webkit-slider-thumb {
+            background: var(--color);
+        }
+
+        .control-item span {
+            font-size: 1rem;
+            color: var(--color);
+        }
+
+        .send-control {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .send-control div {
+            /* display center */
+            display: flex;
+            align-items: center;
+            gap: 0.15rem;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .send-control div label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+
+
+        #descargar {
+            margin-top: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: var(--color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s, transform 0.2s;
+
+        }
+
+        button#descargar {
+            background-color: #792435;
+        }
+
+        button#descargar:hover {
+            background-color: #5c1d2d;
+        }
+
+        button:hover {
+            background-color: var(--color);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+
+    <style>
+        .checkbox-wrapper-12 {
+            position: relative;
+        }
+
+        .checkbox-wrapper-12>svg {
+            position: absolute;
+            top: -130%;
+            left: -170%;
+            width: 110px;
+            pointer-events: none;
+        }
+
+        .checkbox-wrapper-12 * {
+            box-sizing: border-box;
+        }
+
+        .checkbox-wrapper-12 input[type="checkbox"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .checkbox-wrapper-12 input[type="checkbox"]:focus {
+            outline: 0;
+        }
+
+        .checkbox-wrapper-12 .cbx {
+            width: 24px;
+            height: 24px;
+            top: calc(50vh - 12px);
+            left: calc(50vw - 12px);
+        }
+
+        .checkbox-wrapper-12 .cbx input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #bfbfc0;
+            border-radius: 50%;
+        }
+
+        .checkbox-wrapper-12 .cbx label {
+            width: 24px;
+            height: 24px;
+            background: none;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            -webkit-filter: url("#goo-12");
+            filter: url("#goo-12");
+            transform: trasnlate3d(0, 0, 0);
+            pointer-events: none;
+        }
+
+        .checkbox-wrapper-12 .cbx svg {
+            position: absolute;
+            top: 5px;
+            left: 4px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .checkbox-wrapper-12 .cbx svg path {
+            stroke: #fff;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 19;
+            stroke-dashoffset: 19;
+            transition: stroke-dashoffset 0.3s ease;
+            transition-delay: 0.2s;
+        }
+
+        .checkbox-wrapper-12 .cbx input:checked+label {
+            animation: splash-12 0.6s ease forwards;
+        }
+
+        .checkbox-wrapper-12 .cbx input:checked+label+svg path {
+            stroke-dashoffset: 0;
+        }
+
+    
+
+        @keyframes splash-12 {
+            40% {
+                background: var(--color);
+            }
+
+            100% {
+                background: var(--color);
+            }
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <main>
+        <div id="pdf-container">
+            <embed id="pdf-embed" src="{{ url_for('get_pdf', filename='temp.pdf') }}#toolbar=0&navpanes=0&scrollbar=0"
+                type="application/pdf">
+        </div>
+
+        <aside class="controls">
+            <form id="controls-form">
+                <input type="text" id="barcode" value="CC5050" placeholder="Inicio">
+
+                <!-- Gap X -->
+                <div class="control-item">
+                    <label for="gap-x">Gap X: <span id="gap-x-value">0</span></label>
+                    <input type="range" id="gap-x" min="0" max="200" value="0"
+                        oninput="updateValue('gap-x', this.value);">
+
+                </div>
+
+                <!-- Gap Y -->
+                <div class="control-item">
+                    <label for="gap-y">Gap Y: <span id="gap-y-value">0</span></label>
+                    <input type="range" id="gap-y" min="0" max="200" value="0"
+                        oninput="updateValue('gap-y', this.value);">
+
+                </div>
+
+                <!-- Margin X -->
+                <div class="control-item">
+                    <label for="margin-x">Margin X: <span id="margin-x-value">0</span></label>
+                    <input type="range" id="margin-x" min="0" max="200" value="0"
+                        oninput="updateValue('margin-x', this.value);">
+
+                </div>
+
+                <!-- Margin Y -->
+                <div class="control-item">
+                    <label for="margin-y">Margin Y: <span id="margin-y-value">0</span></label>
+                    <input type="range" id="margin-y" min="0" max="200" value="0"
+                        oninput="updateValue('margin-y', this.value);">
+
+                </div>
+
+                <!-- Amount -->
+                <div class="control-item">
+                    <label for="amount">Amount: <span id="amount-value">20</span></label>
+                    <input type="range" id="amount" min="10" max="250" value="20"
+                        oninput="updateValue('amount', this.value);">
+
+                </div>
+
+                <!-- Rows -->
+                <div class="control-item">
+                    <label for="rows">Rows: <span id="rows-value">6</span></label>
+                    <input type="range" id="rows" min="1" max="25" value="6" oninput="updateValue('rows', this.value);">
+
+                </div>
+
+                <!-- Columns -->
+                <div class="control-item">
+                    <label for="cols">Cols: <span id="cols-value">4</span></label>
+                    <input type="range" id="cols" min="1" max="15" value="4" oninput="updateValue('cols', this.value);">
+
+                </div>
+                <div class="send-control">
+                    <div>
+                        <div class="checkbox-wrapper-12">
+                            <div class="cbx">
+                                <input id="draw-lines" type="checkbox" />
+                                <label for="cbx-12"></label>
+                                <svg width="15" height="14" viewbox="0 0 15 14" fill="none">
+                                    <path d="M2 8.36364L6.23077 12L13 2"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <label for="draw-lines">Lineas</label>
+                    </div>
+                    <button type="submit">Actualizar</button>
+                </div>
+            </form>
+            <button id="descargar" onclick="downloadPDF()">Descargar PDF</button>
+        </aside>
+    </main>
+    <script>
+        function downloadPDF() {
+            const drawLines = document.querySelector('#draw-lines').checked;
+            if (drawLines) 
+                if (!confirm('Seguro que quieres descargar el PDF con las lineas dibujadas?')) return;
+
+            const pdf = document.querySelector('embed').src;
+            const a = document.createElement('a');
+            a.href = pdf;
+            a.download = "{{ url_for('static', filename='temp.pdf') }}";
+            a.click();
+        }
+
+        // call updateValue for all when refreshed
+        document.addEventListener('DOMContentLoaded', () => {
+            const ranges = document.querySelectorAll('input[type="range"]');
+            ranges.forEach(range => {
+                const id = range.id;
+                const value = range.value;
+                updateValue(id, value);
+            });
+        });
+
+    </script>
+
+    <script src="{{ url_for('static', filename='renderer.js') }}"></script>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+Flask
+gunicorn
+Werkzeug
+Jinja2
+itsdangerous
+MarkupSafe
+termcolor
+flask-sitemapper
+python-barcode==0.15.1
+reportlab==4.2.5
